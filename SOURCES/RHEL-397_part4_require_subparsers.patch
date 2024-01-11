@@ -1,0 +1,12 @@
+diff --git a/tools/lsmcli/cmdline.py b/tools/lsmcli/cmdline.py
+index ae249b8..6698c53 100644
+--- a/tools/lsmcli/cmdline.py
++++ b/tools/lsmcli/cmdline.py
+@@ -1228,6 +1228,7 @@ def cli(self):
+         _add_common_options(parser, is_child=False)
+ 
+         subparsers = parser.add_subparsers(metavar="command")
++        subparsers.required = True
+ 
+         # Walk the command list and add all of them to the parser
+         for cmd in cmds:

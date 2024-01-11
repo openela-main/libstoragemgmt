@@ -2,7 +2,7 @@
 
 Name:           libstoragemgmt
 Version:        1.9.1
-Release:        3%{?dist}
+Release:        7%{?dist}
 Summary:        Storage array management library
 Group:          System Environment/Libraries
 License:        LGPLv2+
@@ -10,6 +10,10 @@ URL:            https://github.com/libstorage/libstoragemgmt
 Source0:        https://github.com/libstorage/libstoragemgmt/releases/download/%{version}/%{name}-%{version}.tar.gz
 Patch0:         BZ_1710776_change_run_dir.patch
 Patch1:         BZ_2018657_correct_raid10_info.patch
+Patch2:         RHEL-397_part1_remove_openssl_usage.patch
+Patch3:         RHEL-397_part2_cmdtest_correct_hashlib.md5_usage.patch
+Patch4:         RHEL-397_part3_correction_fips_error_lib.patch
+Patch5:         RHEL-397_part4_require_subparsers.patch
 Requires:       python3-%{name}%{_isa} = %{version}-%{release}
 
 # Packages that have been removed
@@ -20,7 +24,6 @@ Provides:       %{name}-nstor-plugin <= 1.9.0-1
 
 BuildRequires:  gcc gcc-c++
 BuildRequires:  autoconf automake libtool libxml2-devel check-devel perl-interpreter
-BuildRequires:  openssl-devel
 BuildRequires:  glib2-devel
 BuildRequires:  systemd
 BuildRequires:  bash-completion
@@ -35,9 +38,6 @@ BuildRequires:  python3-devel
 BuildRequires:  systemd systemd-devel
 
 BuildRequires:  chrpath
-%ifarch %{valgrind_arches}
-BuildRequires:  valgrind
-%endif
 
 %description
 The libStorageMgmt library will provide a vendor agnostic open source storage
@@ -487,6 +487,19 @@ fi
 %{_mandir}/man1/local_lsmplugin.1*
 
 %changelog
+* Thu Jun 29 2023 Tony Asleson <tasleson@redhat.com> - 1.9.1-7
+- Remove valgrind dependency as not being used and causing
+  build to fail as it pulls in python3.11
+
+* Tue Jun 27 2023 Tony Asleson <tasleson@redhat.com> - 1.9.1-6
+- Fix subparsers
+
+* Tue Jun 27 2023 Tony Asleson <tasleson@redhat.com> - 1.9.1-5
+- Add missing test yaml configuration file
+
+* Wed Jun 21 2023 Tony Asleson <tasleson@redhat.com> - 1.9.1-4
+- RHEL-397 fips related corrections
+
 * Fri Nov 12 2021 Tony Asleson <tasleson@redhat.com> - 1.9.1-3
 - Correct rpmdiff warnings
 - RHBZ #2018657

@@ -1,0 +1,120 @@
+diff --git a/configure.ac b/configure.ac
+index 02ecc4c..0a2316a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -106,9 +106,6 @@ fi
+ dnl Availability of various common headers (non-fatal if missing).
+ AC_CHECK_HEADERS([dlfcn.h])
+ 
+-#Check for openssl development libs, we are using in simc_lsmplugin
+-AC_CHECK_LIB([crypto], [MD5_Final], [SSL_LIBS=-lcrypto], AC_MSG_ERROR([Missing openssl-devel libraries]))
+-AC_SUBST([SSL_LIBS])
+ #Check for sqlite development libs for simc_lsmplugin
+ PKG_CHECK_MODULES([SQLITE3], [sqlite3])
+ 
+diff --git a/packaging/libstoragemgmt.spec.in b/packaging/libstoragemgmt.spec.in
+index 4c19606..6148cb5 100644
+--- a/packaging/libstoragemgmt.spec.in
++++ b/packaging/libstoragemgmt.spec.in
+@@ -27,7 +27,6 @@ Obsoletes:      %{name}-nfs-plugin-clibs < %{version}-%{release}
+ 
+ BuildRequires:  gcc gcc-c++
+ BuildRequires:  autoconf automake libtool libxml2-devel check-devel perl-interpreter
+-BuildRequires:  openssl-devel
+ BuildRequires:  glib2-devel
+ BuildRequires:  systemd
+ BuildRequires:  bash-completion
+diff --git a/plugin/sim_plugin/simarray.py b/plugin/sim_plugin/simarray.py
+index c39f5f0..c5471bb 100644
+--- a/plugin/sim_plugin/simarray.py
++++ b/plugin/sim_plugin/simarray.py
+@@ -130,7 +130,7 @@ def data_disk_count(raid_type, disk_count):
+ 
+ class BackStore(object):
+     VERSION = "4.1"
+-    VERSION_SIGNATURE = 'LSM_SIMULATOR_DATA_%s_%s' % (VERSION, md5(VERSION))
++    VERSION_SIGNATURE = 'LSM_SIMULATOR_DATA_%s' % (VERSION)
+     JOB_DEFAULT_DURATION = 1
+     JOB_DATA_TYPE_VOL = 1
+     JOB_DATA_TYPE_FS = 2
+diff --git a/plugin/simc/db.c b/plugin/simc/db.c
+index 8f8e1e9..fd5b797 100644
+--- a/plugin/simc/db.c
++++ b/plugin/simc/db.c
+@@ -354,13 +354,8 @@ out:
+ }
+ 
+ static const char *_sys_version(void) {
+-    char version_md5[_MD5_HASH_STR_LEN];
+-
+-    _md5(_DB_VERSION, version_md5);
+-
+-    snprintf(_SYS_VERSION, _BUFF_SIZE, "%s_%s_%s", _DB_VERSION_STR_PREFIX,
+-             _DB_VERSION, version_md5);
+-
++    snprintf(_SYS_VERSION, _BUFF_SIZE, "%s_%s", _DB_VERSION_STR_PREFIX,
++        _DB_VERSION);
+     return _SYS_VERSION;
+ }
+ 
+diff --git a/plugin/simc/simc_lsmplugin.c b/plugin/simc/simc_lsmplugin.c
+index 5eea918..13e0166 100644
+--- a/plugin/simc/simc_lsmplugin.c
++++ b/plugin/simc/simc_lsmplugin.c
+@@ -20,7 +20,6 @@
+ #include <assert.h>
+ #include <errno.h>
+ #include <fcntl.h>
+-#include <openssl/md5.h>
+ #include <sqlite3.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+diff --git a/plugin/simc/utils.c b/plugin/simc/utils.c
+index 99cbef7..616ea75 100644
+--- a/plugin/simc/utils.c
++++ b/plugin/simc/utils.c
+@@ -49,19 +49,6 @@ int _get_db_from_plugin_ptr(char *err_msg, lsm_plugin_ptr c, sqlite3 **db) {
+     return rc;
+ }
+ 
+-void _md5(const char *data, char *out_hash) {
+-    int i = 0;
+-    unsigned char digest[MD5_DIGEST_LENGTH];
+-
+-    assert(data != NULL);
+-    assert(out_hash != NULL);
+-
+-    MD5((const unsigned char *)data, strlen(data), digest);
+-
+-    for (; i < MD5_DIGEST_LENGTH; ++i)
+-        sprintf(out_hash + i * 2, "%02x", (unsigned int)digest[i]);
+-}
+-
+ /*
+  * Copy from c_binding/utils.c, will remove if that was exposed out.
+  */
+diff --git a/plugin/simc/utils.h b/plugin/simc/utils.h
+index f018b0a..30c9bb8 100644
+--- a/plugin/simc/utils.h
++++ b/plugin/simc/utils.h
+@@ -19,7 +19,6 @@
+ #ifndef _SIMC_UTILS_H_
+ #define _SIMC_UTILS_H_
+ 
+-#include <openssl/md5.h>
+ #include <sqlite3.h>
+ #include <stdbool.h>
+ #include <stdlib.h>
+@@ -145,12 +144,6 @@ struct _simc_private_data {
+     }
+ int _get_db_from_plugin_ptr(char *err_msg, lsm_plugin_ptr c, sqlite3 **db);
+ 
+-/*
+- * data:        Non-NULL pointer to a string.
+- * out_hash:    Pointer to char[_MD5_HASH_STR_LEN]
+- */
+-void _md5(const char *data, char *out_hash);
+-
+ /*
+  * true if file exists or false.
+  */

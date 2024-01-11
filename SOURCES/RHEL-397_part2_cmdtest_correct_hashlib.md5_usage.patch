@@ -1,0 +1,16 @@
+diff --git a/test/cmdtest.py.in b/test/cmdtest.py.in
+index 0764318..e4f4f77 100755
+--- a/test/cmdtest.py.in
++++ b/test/cmdtest.py.in
+@@ -64,7 +64,10 @@ def random_iqn():
+     """Logic taken from anaconda library"""
+ 
+     s = "iqn.1994-05.com.domain:01."
+-    m = hashlib.md5()
++    try:
++        m = hashlib.md5(usedforsecurity=False)
++    except Exception:
++        m = hashlib.md5()
+     u = os.uname()
+     for i in u:
+         m.update(i.encode('utf-8'))

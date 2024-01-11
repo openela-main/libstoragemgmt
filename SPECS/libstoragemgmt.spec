@@ -1,13 +1,13 @@
 %bcond_with     test
 
 Name:           libstoragemgmt
-Version:        1.9.5
-Release:        1%{?dist}
+Version:        1.9.7
+Release:        2%{?dist}
 Summary:        Storage array management library
 License:        LGPLv2+
 URL:            https://github.com/libstorage/libstoragemgmt
 Source0:        https://github.com/libstorage/libstoragemgmt/releases/download/%{version}/%{name}-%{version}.tar.gz
-Patch1:         0001-change-run-dir.patch
+Patch1:         0001-Correction-for-fips-error.patch
 Requires:       python3-%{name}%{_isa}
 
 # Packages that have been removed
@@ -444,6 +444,12 @@ fi
 %{_mandir}/man1/local_lsmplugin.1*
 
 %changelog
+* Tue Apr 18 2023 Tony Asleson <tasleson@redhat.com> - 1.9.7-2
+- FIPS correction ref: https://issues.redhat.com/browse/RHEL-376
+
+* Wed Feb 22 2023 Tony Asleson <tasleson@redhat.com> - 1.9.7-1
+- Upgrade to 1.9.7
+
 * Thu Oct 27 2022 Tony Asleson <tasleson@redhat.com> - 1.9.5-1
 - Upgrade to 1.9.5
 - Use systemd-sysusers
